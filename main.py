@@ -398,45 +398,7 @@ app = Dash(__name__)
 app.layout = html.Div([
     html.H1(children='Pokémon Report', style={'textAlign': 'center'}),
 
-    html.H2(children='1. Pokémon Ranking (by comparing Stats)'),
-
-    html.Div("This is a ranking done using formula:", style={'marginBottom': '10px'}),
-    html.Div("""([Attack of attacking pokemon] - [Defense of defending pokemon])*0.8 + ([Sp. Attack of attacking 
-    pokemon] - [Sp. Defense of defending pokemon])*0.2""", style={'fontStyle': 'italic', 'marginBottom': '10px'}),
-    html.Div("Pokémon are ranked by a Total Score.", style={'marginBottom': '10px'}),
-
-    dash_table.DataTable(
-        id="rank_table_1",
-        columns=formatted_columns,
-        data=ranked_by_scores.to_dict('records'),
-        style_table={'overflowX': 'scroll', 'padding': '5px'},
-        style_cell={'width': '250px'},
-        page_size=20,
-        sort_action='native',
-    ),
-
-    html.H2(children='2. Pokémon Ranking (by Type Strength)'),
-    html.Div("""This ranking is done based only on the strength of types of a pokemon.
-    The strongest pokemon is the one with the biggest value of accumulated score of multipliers.""",
-             style={'marginBottom': '10px'}),
-    html.Div("Following this part of the documentation:", style={'marginBottom': '10px'}),
-    html.Div("""If the enemy has two types, both are taken into account, and the multipliers for each Type are
-             multiplied together. Thus, the full range of possible Type Modifier values is as follows: 4, 2, 1, 0.5, 
-             0.25, 0.""", style={'fontStyle': 'italic', 'marginBottom': '10px'}),
-    html.Div("To calculate the overall strength against others we will sum the Type Modifiers for every pokemon.",
-             style={'marginBottom': '10px'}),
-
-    dash_table.DataTable(
-        id="rank_table_2",
-        columns=[{"name": i, "id": i} for i in ranked_by_types.columns],
-        data=ranked_by_types.to_dict('records'),
-        style_table={'overflowX': 'scroll', 'padding': '5px'},
-        style_cell={'width': '250px'},
-        page_size=20,
-        sort_action='native',
-    ),
-
-    html.H2(children='3. Pokémon Comparison'),
+    html.H2(children='1. Interactive Pokémon Comparison'),
 
     html.Div([
         html.Label('Select First Pokémon:'),
@@ -478,6 +440,29 @@ app.layout = html.Div([
     dcc.Graph(id='graph-content'),
 
     html.H3('2) Battle Comparison', style={'marginTop': '20px'}),
+    html.Div([
+        html.Div([
+            html.Div([
+                html.Span("Damage of "),
+                html.Span(id="1-pok-1-name"),
+                html.Span(" to "),
+                html.Span(id="1-pok-2-name")
+            ], style={"fontWeight": "bold", "textAlign": "center"}),
+            html.Div(id="damage-1", style={"textAlign": "center", "marginTop": "10px"})
+        ], style={"width": "100%", "borderRadius": "12px", "backgroundColor": "#e5ecf6", "border": "1px solid #d0dbe9",
+                  "padding": "12px"}),
+        html.Div([
+            html.Div([
+                html.Span("Damage of "),
+                html.Span(id="2-pok-2-name"),
+                html.Span(" to "),
+                html.Span(id="2-pok-1-name")
+            ], style={"fontWeight": "bold", "textAlign": "center"}),
+            html.Div(id="damage-2", style={"textAlign": "center", "marginTop": "10px"})
+        ], style={"width": "100%", "borderRadius": "12px", "backgroundColor": "#ffeae6", "border": "1px solid #f0cfc9",
+                  "padding": "12px"})
+    ], style={'display': 'flex', 'justifyContent': 'space-between', 'margin': '30px 0', "gap": "25px"}),
+
     html.Div("The formula we will use is to calculate the damage is following:"),
     html.Div("""((2A/5+2)*B*C)/D)/50)+2)*X)*Y/10)*Z)/255""", style={'fontStyle': 'italic', 'marginBottom': '10px'}),
     html.B("Explanation:", style={'display': 'block'}),
@@ -488,33 +473,51 @@ app.layout = html.Div([
         html.Li("""For the same reason we will assume that the type of an attack always matches the physical or
         special attack of the pokemon. Hence X is always 1.5 in our case."""),
         html.Li("""We will refer the Type Modifier chart used previously to determine the value of Y."""),
-        html.Li("""Since we don't know the move, we will assign it to the flat values of 70."""),
+        html.Li("""Since we don't know the move, we will assign it to the flat value of 70."""),
         html.Li("""For a level, we will also simply take a constant value of 50."""),
         html.Li("""Damage will be a randomly generated number from 217 to 255, as stated in the documentation.""")
     ]),
     html.Div("""Despite all the assumptions due to the lack of move and level data, this model is still precise
     enough to estimate and compare damage based on the pokemon specific data."""),
 
-    html.Div([
-        html.Div([
-            html.Div([
-                html.Span("Damage of "),
-                html.Span(id="1-pok-1-name"),
-                html.Span(" to "),
-                html.Span(id="1-pok-2-name")
-            ], style={"fontWeight": "bold", "textAlign": "center"}),
-            html.Div("390", id="damage-1")
-        ], style={"width": "100%"}),
-        html.Div([
-            html.Div([
-                html.Span("Damage of "),
-                html.Span(id="2-pok-2-name"),
-                html.Span(" to "),
-                html.Span(id="2-pok-1-name")
-            ], style={"fontWeight": "bold", "textAlign": "center"}),
-            html.Div("390", id="damage-2")
-        ], style={"width": "100%"})
-    ], style={'display': 'flex', 'justifyContent': 'space-between', 'marginTop': '30px'}),
+    html.H2(children='2. Pokémon Ranking (by comparing Stats)'),
+
+    html.Div("This is a ranking done using formula:", style={'marginBottom': '10px'}),
+    html.Div("""([Attack of attacking pokemon] - [Defense of defending pokemon])*0.8 + ([Sp. Attack of attacking 
+    pokemon] - [Sp. Defense of defending pokemon])*0.2""", style={'fontStyle': 'italic', 'marginBottom': '10px'}),
+    html.Div("Pokémon are ranked by a Total Score.", style={'marginBottom': '10px'}),
+
+    dash_table.DataTable(
+        id="rank_table_1",
+        columns=formatted_columns,
+        data=ranked_by_scores.to_dict('records'),
+        style_table={'overflowX': 'scroll', 'padding': '5px'},
+        style_cell={'width': '250px'},
+        page_size=20,
+        sort_action='native',
+    ),
+
+    html.H2(children='3. Pokémon Ranking (by Type Strength)'),
+    html.Div("""This ranking is done based only on the strength of types of a pokemon.
+    The strongest pokemon is the one with the biggest value of accumulated score of multipliers.""",
+             style={'marginBottom': '10px'}),
+    html.Div("Following this part of the documentation:", style={'marginBottom': '10px'}),
+    html.Div("""If the enemy has two types, both are taken into account, and the multipliers for each Type are
+             multiplied together. Thus, the full range of possible Type Modifier values is as follows: 4, 2, 1, 0.5, 
+             0.25, 0.""", style={'fontStyle': 'italic', 'marginBottom': '10px'}),
+    html.Div("To calculate the overall strength against others we will sum the Type Modifiers for every pokemon.",
+             style={'marginBottom': '10px'}),
+
+    dash_table.DataTable(
+        id="rank_table_2",
+        columns=[{"name": i, "id": i} for i in ranked_by_types.columns],
+        data=ranked_by_types.to_dict('records'),
+        style_table={'overflowX': 'scroll', 'padding': '5px'},
+        style_cell={'width': '250px'},
+        page_size=20,
+        sort_action='native',
+    ),
+
 
     html.Footer("Report prepared by Georgy Lepsaya", style={'marginTop': '150px', 'marginBottom': '40px', 'color': 'grey', 'textAlign':
                                          'center'})
@@ -648,7 +651,7 @@ def update_damage(pokemon1, pokemon2):
     values2 = pokemon2.split(' ')
     stats2 = df[(df.NAME == " ".join(values2[:-1])) & (df.GENERATION == int(values2[-1]))].iloc[0]
 
-    return calculate_damage(stats1, stats2), calculate_damage(stats2, stats1)
+    return round(calculate_damage(stats1, stats2), 3), round(calculate_damage(stats2, stats1), 3)
 
 
 if __name__ == '__main__':
