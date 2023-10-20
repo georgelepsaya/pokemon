@@ -15,8 +15,10 @@ app.layout = html.Div([
     html.Div([
         html.Label('Select First Pokémon:'),
         dcc.Dropdown(
-            options=[{'label': name, 'value': name} for name in df.NAME.unique()],
-            value='Bulbasaur',
+            options=[{'label': f"{row['NAME']} (Gen {int(row['GENERATION'])})",
+                      'value': f"{row['NAME']} {int(row['GENERATION'])}"}
+                     for _, row in df[['NAME', 'GENERATION']].drop_duplicates().iterrows()],
+            value='Bulbasaur 1',
             id='dropdown-selection-1'
         )
     ], style={'width': '48%', 'display': 'inline-block'}),
@@ -24,8 +26,9 @@ app.layout = html.Div([
     html.Div([
         html.Label('Select Second Pokémon:'),
         dcc.Dropdown(
-            options=[{'label': name, 'value': name} for name in df.NAME.unique()],
-            value='Charmander',
+            options=[{'label': f"{row['NAME']} (Gen {int(row['GENERATION'])})", 'value': f"{row['NAME']} {int(row['GENERATION'])}"}
+                     for _, row in df[['NAME', 'GENERATION']].drop_duplicates().iterrows()],
+            value='Charmander 1',
             id='dropdown-selection-2'
         )
     ], style={'width': '48%', 'float': 'right', 'display': 'inline-block'}),
@@ -59,8 +62,10 @@ app.layout = html.Div([
 )
 def update_graph(pokemon1, pokemon2):
     # Fetch stats for both Pokemon
-    stats1 = df[df.NAME == pokemon1].iloc[0]
-    stats2 = df[df.NAME == pokemon2].iloc[0]
+    values1 = pokemon1.split(' ')
+    values2 = pokemon2.split(' ')
+    stats1 = df[(df.NAME == values1[0]) & (df.GENERATION == int(values1[1]))].iloc[0]
+    stats2 = df[(df.NAME == values2[0]) & (df.GENERATION == int(values2[1]))].iloc[0]
 
     # List of stats to compare
     stat_names = ['HP', 'ATK', 'DEF', 'SP_ATK', 'SP_DEF', 'SPD']
@@ -92,7 +97,8 @@ def update_pokemon_1_name(pokemon1):
     Input('dropdown-selection-1', 'value')
 )
 def update_pokemon_1_total(pokemon1):
-    stats = df[df.NAME == pokemon1].iloc[0]
+    values = pokemon1.split(' ')
+    stats = df[(df.NAME == values[0]) & (df.GENERATION == int(values[1]))].iloc[0]
     return stats['TOTAL']
 
 
@@ -109,7 +115,8 @@ def update_pokemon_2_name(pokemon2):
     Input('dropdown-selection-2', 'value')
 )
 def update_pokemon_1_total(pokemon2):
-    stats = df[df.NAME == pokemon2].iloc[0]
+    values = pokemon2.split(' ')
+    stats = df[(df.NAME == values[0]) & (df.GENERATION == int(values[1]))].iloc[0]
     return stats['TOTAL']
 
 
