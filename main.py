@@ -394,8 +394,6 @@ for column_name in ranked_by_scores.columns:
 # Initiate a Dash app
 app = Dash(__name__)
 
-server = app.server
-
 # Define a Dash app layout
 app.layout = html.Div([
     html.H1(children='Pokémon Report', style={'textAlign': 'center'}),
