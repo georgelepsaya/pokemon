@@ -10,6 +10,11 @@ app = Dash(__name__)
 
 app.layout = html.Div([
     html.H1(children='Pokémon Report', style={'textAlign': 'center'}),
+
+    html.H2(children='Pokémon Ranking (from best to worst)'),
+
+    html.H2(children='Pokémon Ranking (by strength against all others)'),
+
     html.H2(children='Pokémon Comparison'),
 
     html.Div([
@@ -64,8 +69,8 @@ def update_graph(pokemon1, pokemon2):
     # Fetch stats for both Pokemon
     values1 = pokemon1.split(' ')
     values2 = pokemon2.split(' ')
-    stats1 = df[(df.NAME == values1[0]) & (df.GENERATION == int(values1[1]))].iloc[0]
-    stats2 = df[(df.NAME == values2[0]) & (df.GENERATION == int(values2[1]))].iloc[0]
+    stats1 = df[(df.NAME == " ".join(values1[:-1])) & (df.GENERATION == int(values1[-1]))].iloc[0]
+    stats2 = df[(df.NAME == " ".join(values2[:-1])) & (df.GENERATION == int(values2[-1]))].iloc[0]
 
     # List of stats to compare
     stat_names = ['HP', 'ATK', 'DEF', 'SP_ATK', 'SP_DEF', 'SPD']
@@ -98,7 +103,7 @@ def update_pokemon_1_name(pokemon1):
 )
 def update_pokemon_1_total(pokemon1):
     values = pokemon1.split(' ')
-    stats = df[(df.NAME == values[0]) & (df.GENERATION == int(values[1]))].iloc[0]
+    stats = df[(df.NAME == " ".join(values[:-1])) & (df.GENERATION == int(values[-1]))].iloc[0]
     return stats['TOTAL']
 
 
@@ -116,7 +121,7 @@ def update_pokemon_2_name(pokemon2):
 )
 def update_pokemon_1_total(pokemon2):
     values = pokemon2.split(' ')
-    stats = df[(df.NAME == values[0]) & (df.GENERATION == int(values[1]))].iloc[0]
+    stats = df[(df.NAME == " ".join(values[:-1])) & (df.GENERATION == int(values[-1]))].iloc[0]
     return stats['TOTAL']
 
 
