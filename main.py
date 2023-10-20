@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from dash import Dash, html, dcc, Output, Input, dash_table
 from dash.dash_table.Format import Format
@@ -655,4 +656,5 @@ def update_damage(pokemon1, pokemon2):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 8080))
+    app.run_server(debug=False, host='0.0.0.0', port=port)
