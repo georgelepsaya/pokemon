@@ -2,43 +2,9 @@ import pandas as pd
 from dash import Dash, html, dcc, Output, Input, dash_table
 from dash.dash_table.Format import Format
 import plotly.graph_objects as go
+import random
 from scripts.extract_data import extract_data
 
-# Physical Types:
-#
-# Normal
-# Fighting
-# Flying
-# Ground
-# Rock
-# Bug
-# Ghost
-# Poison
-# Special Types:
-#
-# Water
-# Grass
-# Fire
-# Ice
-# Electric
-# Psychic
-
-attack_types = {
-    "physical": ["Normal",
-                 "Fighting",
-                 "Flying",
-                 "Ground",
-                 "Rock",
-                 "Bug",
-                 "Ghost",
-                 "Poison"],
-    "special": ["Water",
-                "Grass",
-                "Fire",
-                "Ice",
-                "Electric",
-                "Psychic"]
-}
 
 type_chart = {
     "normal": {
@@ -517,8 +483,8 @@ app.layout = html.Div([
     html.B("Explanation:", style={'display': 'block'}),
     html.Ol([
         html.Li("""Since we don't have data on specific moves pokemon make, we are going to assume that the type of a 
-        move matches matches the type of the pokemon. Which is why we are going to take the most damaging type of an attack
-        for a type - either Physical or Special."""),
+        move matches matches the type of the pokemon. Which is why we are going to take the most damaging type of an 
+        attack for a type - Physical or Special."""),
         html.Li("""For the same reason we will assume that the type of an attack always matches the physical or
         special attack of the pokemon. Hence X is always 1.5 in our case."""),
         html.Li("""We will refer the Type Modifier chart used previously to determine the value of Y."""),
@@ -546,7 +512,7 @@ app.layout = html.Div([
                 html.Span(" to "),
                 html.Span(id="2-pok-1-name")
             ], style={"fontWeight": "bold", "textAlign": "center"}),
-            html.Div("390", id="damage-1")
+            html.Div("390", id="damage-2")
         ], style={"width": "100%"})
     ], style={'display': 'flex', 'justifyContent': 'space-between', 'marginTop': '30px'}),
 
@@ -645,7 +611,44 @@ def update_pok_1_names(pokemon1):
      Input('dropdown-selection-2', 'value')]
 )
 def update_damage(pokemon1, pokemon2):
+    def calculate_damage(pok1, pok2):
+        a = 50
+        c = 70
+        x = 1.5
+        z = random.randint(217, 255)
+        b = pok1['ATK']
+        d = pok2['DEF']
+        atk_type = 'physical'
+        if pok1['ATK'] < pok1['SP_ATK']:
+            b = pok1['SP_ATK']
+            atk_type = 'special'
+        if atk_type == 'special':
+            d = pok2['SP_DEF']
+        y = 0
+        type1_pok1 = pok1['TYPE1'].lower()
+        type1_pok2 = pok2['TYPE1'].lower()
+        type2_pok1 = None if pd.isna(pok1['TYPE2']) else pok1['TYPE2'].lower()
+        type2_pok2 = None if pd.isna(pok2['TYPE2']) else pok2['TYPE2'].lower()
+        mult11 = type_chart[type1_pok1][type1_pok2]
+        mult12 = 1 if type2_pok2 is None else type_chart[type1_pok1][type2_pok2]
+        tm1 = mult11 * mult12
+        if type2_pok1:
+            mult21 = type_chart[type2_pok1][type1_pok2]
+            mult22 = 1 if type2_pok2 is None else type_chart[type2_pok1][type2_pok2]
+            tm2 = mult21 * mult22
+            y = max(tm1, tm2)
+        else:
+            y = tm1
+        damage = ((((((((2*a / 5 + 2)*b*c)/d)/50) + 2)*x)*y/10)*z)/255
+        return damage
 
+    values1 = pokemon1.split(' ')
+    stats1 = df[(df.NAME == " ".join(values1[:-1])) & (df.GENERATION == int(values1[-1]))].iloc[0]
+
+    values2 = pokemon2.split(' ')
+    stats2 = df[(df.NAME == " ".join(values2[:-1])) & (df.GENERATION == int(values2[-1]))].iloc[0]
+
+    return calculate_damage(stats1, stats2), calculate_damage(stats2, stats1)
 
 
 if __name__ == '__main__':
